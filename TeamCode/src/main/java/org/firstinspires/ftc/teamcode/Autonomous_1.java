@@ -83,10 +83,11 @@ public class Autonomous_1 extends LinearOpMode {
             //updateServo(false); //close the servo to grip el cone
             sleep(1000);
 
-//            slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 28.5)*720/288);
-//            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            slideMotor.setPower(0.4);
-//            sleep(1000);
+            slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 9.5)*720/288); //conversation rate from 720 counts/in:288counts/in per diff appl.
+            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideMotor.setPower(0.4);
+            sleep(1000);
+
             moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*15.5));
 
             if (scanner.coneColor() == 1) {
@@ -110,8 +111,8 @@ public class Autonomous_1 extends LinearOpMode {
 
 
             //updateServo(true);
-            moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*25));
-            moveBackward(power, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*15.5));
+            moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*27));
+            moveBackward(power, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*17.5));
 
 
             //`parkingSpot = 2;
@@ -125,9 +126,14 @@ public class Autonomous_1 extends LinearOpMode {
                 telemetry.update();
             }
 
+
             sleep(20);
             cam.stopStreaming();
 
+            slideMotor.setTargetPosition(0);
+            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideMotor.setPower(0.4);
+            sleep(1000);
 
             break;
         }

@@ -33,6 +33,7 @@ public class TeleOp1 extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION)/(WHEEL_DIAMETER_INCHES * 3.1415);
     private int x = 0;
+    String lastPressed = "";
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -128,7 +129,7 @@ public class TeleOp1 extends LinearOpMode {
                 slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 2.5 / 2));
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideMotor.setPower(0.5);
-
+                lastPressed = "x";
                 if (slideMotor.getCurrentPosition() > (int) (COUNTS_PER_INCH * 2.5) / 2) {
                     slideMotor.setPower(0);
                     slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -137,6 +138,7 @@ public class TeleOp1 extends LinearOpMode {
                 slideMotor.setTargetPosition((int)(COUNTS_PER_INCH * 17 / 2 ));
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideMotor.setPower(0.5);
+                lastPressed = "a";
                 if (slideMotor.getCurrentPosition() > (int) (COUNTS_PER_INCH * (17 / 2 ))) {
                     slideMotor.setPower(0);
                     slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -145,12 +147,21 @@ public class TeleOp1 extends LinearOpMode {
                 slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * (27 / 1.9)));
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideMotor.setPower(0.5);
-
+                lastPressed = "b";
                 if (slideMotor.getCurrentPosition() > (int) (COUNTS_PER_INCH * (27 / 1.9))) {
                     slideMotor.setPower(0);
                     slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 }
-            } else if (gamepad2.dpad_down){
+            } else if (gamepad2.y) {
+                slideMotor.setTargetPosition((int)(COUNTS_PER_INCH * (34/2)));
+                slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideMotor.setPower(0.5);
+                lastPressed = "y";
+                if (slideMotor.getCurrentPosition() > (int)(COUNTS_PER_INCH * 34/2)) {
+                    slideMotor.setPower(0);
+                    slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                }
+            }else if (gamepad2.dpad_down){
                 //either midway up or at its desination
                 slideMotor.setTargetPosition(10);
                 slideMotor.setPower(-0.5);
