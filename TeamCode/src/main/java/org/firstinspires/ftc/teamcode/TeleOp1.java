@@ -22,7 +22,10 @@ public class TeleOp1 extends LinearOpMode {
     private int servoState = 2;
     private int armState = 5;
     private Servo armServo;
+    private double S = 0.98;
     double ticks = 0;
+    private double power = 0.0;
+    int st = 0;
     private DigitalChannel maxLimitTouch;
 
     static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
@@ -30,7 +33,6 @@ public class TeleOp1 extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION)/(WHEEL_DIAMETER_INCHES * 3.1415);
     private int x = 0;
-    double pastPower = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -62,55 +64,65 @@ public class TeleOp1 extends LinearOpMode {
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (opModeIsActive()) {
-
-            if (gamepad1.right_trigger > 0.01 || gamepad1.left_trigger > 0.01) { //left == ccw rotation, right == cw rotation
+            if (gamepad1.right_trigger > 0.02 || gamepad1.left_trigger > 0.02) { //left == ccw rotation, right == cw rotation
                 int absR = 0;
 
-                if (gamepad1.right_trigger > 0.01) {
-                    absR = 1;
-                } else if (gamepad1.left_trigger > 0.01) {
-                    absR = -1;
+                if (gamepad1.right_trigger > 0) {
+                    power = Math.abs(gamepad1.right_trigger)*3/4;
+                } else if (gamepad1.left_trigger > 0) {
+                    power = -Math.abs(gamepad1.right_trigger)*3/4;
                 }
-                double rPow = (absR == 1) ? (Math.abs(gamepad1.right_trigger)/2) : (Math.abs(gamepad1.left_trigger)/2);
-                telemetry.addData("rPow: ", rPow);
-                trm.setPower(-absR * rPow);   // abs -> (+) => + power to trm (should be -, refer to cmt above)
-                brm.setPower(-absR * rPow);   // abs -> (+) => + power to brm
-                tlm.setPower(-absR * rPow);   // abs -> (+) => - power to tlm (keep in mind left is being fed reverse, so +reverse is -)
-                blm.setPower(absR * rPow);  // abs -> (+) => + power to blm (keep in mind left is being fed reverse, so -reverse is +)
 
+                trm.setPower(-power);   // abs -> (+) => + power to trm (should be -, refer to cmt above)
+                brm.setPower(-power);   // abs -> (+) => + power to brm
+                tlm.setPower(power);   // abs -> (+) => - power to tlm (keep in mind left is being fed reverse, so +reverse is -)
+                blm.setPower(power);  // abs -> (+) => + power to blm (keep in mind left is being fed reverse, so -reverse is +)
+                st = 0;
             } else { //only when there's no response on the triggers
 
-                //so calc for sign isn't undefined, and also falls out of +/- 0.05 margin for x adjustment of joystick
-                if (Math.abs(gamepad1.right_stick_x) > 0.01) {
-                    int absX = (int) (gamepad1.right_stick_x / Math.abs(gamepad1.right_stick_x));
-                    double backPowX = Math.abs(gamepad1.right_stick_x);
-                    double frontPowX = Math.abs(gamepad1.right_stick_x);
-
-                    trm.setPower(-absX * frontPowX);   // abs -> (+) => + power to trm (should be -, refer to cmt above)
-                    brm.setPower(absX * backPowX);  // abs -> (+) => - power to brm
-                    tlm.setPower(-absX * frontPowX);   // abs -> (+) => - power to tlm (keep in mind left is being fed reverse, so -reverse is +)
-                    blm.setPower(-absX * backPowX);   // abs -> (+) => - power to blm (keep in mind left is being fed reverse, so -reverse is +)
+                //so calc for sign isn't undefined, and also falls out of +/- 0.02 margin for x adjustment of joystick
+                if (Math.abs(gamepad1.right_stick_x) != 0) {
+                    power = (S*power + (1-S) * gamepad1.right_stick_x);
+                    st = -1;
+                    trm.setPower(-power);   // abs -> (+) => + power to trm (should be -, refer to cmt above)
+                    brm.setPower(power);  // abs -> (+) => - power to brm
+                    tlm.setPower(power);   // abs -> (+) => - power to tlm (keep in mind left is being fed reverse, so -reverse is +)
+                    blm.setPower(-power);   // abs -> (+) => - power to blm (keep in mind left is being fed reverse, so -reverse is +)
                 }
 
-                //so calc for sign isn't undefined, also falls out of +/- 0.05 margin for y adjustment of joystick
-                else if (Math.abs(gamepad1.left_stick_y) > 0.01) {
-                    int absY = (int) (gamepad1.left_stick_y / Math.abs(gamepad1.left_stick_y));
-                    double powY = (Math.abs(gamepad1.left_stick_y)/2);
-                    telemetry.addData("powY: ", powY);
-                    trm.setPower(-absY * (powY));    // abs -> (+) => + power to trm
-                    brm.setPower(-absY * (powY));     // abs -> (+) => + power to brm
-                    tlm.setPower(absY * powY);     // abs -> (+) => + power to tlm (keep in mind left is being fed reverse, so +reverse is -)
-                    blm.setPower(-absY * powY);     // abs -> (+) => + power to blm (keep in mind left if being fed reverse, so +reverse is -)
+                //so calc for sign isn't undefined, also falls out of +/- 0.02 margin for y adjustment of joystick
+                else if (Math.abs(gamepad1.left_stick_y) != 0) {
+                    power = (S*power + (1-S) * gamepad1.left_stick_y);
+                    st = 1;
+                    trm.setPower(-power);    // abs -> (+) => + power to trm
+                    brm.setPower(-power);     // abs -> (+) => + power to brm
+                    tlm.setPower(-power);     // abs -> (+) => + power to tlm (keep in mind left is being fed reverse, so +reverse is -)
+                    blm.setPower(-power);     // abs -> (+) => + power to blm (keep in mind left if being fed reverse, so +reverse is -)
 
-                } else { //accounts for dead margin (-0.05 <= x <= 0.05)
-                    tlm.setPower(0);
-                    trm.setPower(0);
-                    blm.setPower(0);
-                    brm.setPower(0);
+                } else { //accounts for dead margin (x == 0)
+                    if (st == -1) { //implies that the last movement was horizontal - slowly tapers off
+                        power = (S*power + (1-S) * gamepad1.right_stick_x);
+                        st = -1;
+                        trm.setPower(-power);
+                        brm.setPower(power);
+                        tlm.setPower(power);
+                        blm.setPower(-power);
+                    } if (st == 1) { //implies that the last movement was vertical - slowly tapers off
+                        power = (S*power + (1-S) * gamepad1.left_stick_y);
+                        st = 1;
+                        trm.setPower(-power);
+                        brm.setPower(-power);
+                        tlm.setPower(-power);
+                        blm.setPower(-power);
+                    } if (st == 0) {
+                        trm.setPower(0);
+                        brm.setPower(0);
+                        tlm.setPower(0);
+                        blm.setPower(0);
+                    }
                 }
+
             }
-
-
 
             if (gamepad2.x) {//Carry position
                 slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 2.5 / 2));

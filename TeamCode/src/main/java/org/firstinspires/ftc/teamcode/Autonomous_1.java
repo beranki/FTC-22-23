@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 //import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -12,15 +11,14 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Autonomous 1.0 -> A2 & F5 (reliable - USE)")
-public class
-AutonomousBlue1 extends LinearOpMode {
+@Autonomous(name = "Autonomous_2")
+public class Autonomous_1 extends LinearOpMode {
     private DcMotor tlm, trm, blm, brm, slideMotor;
     //private Gyro gyro;
     OpenCvCamera cam;
-    private Servo armServo;
+    //private Servo armServo;
 
-    double power = 0.4;
+    double power = 0.2;
     private int parkingSpot = 0;
 
     static final double COUNTS_PER_MOTOR_REV = 288;
@@ -32,17 +30,16 @@ AutonomousBlue1 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //hex motor 20:1 gearbox -> linear slide; touch sensor for max height
-
         double colAvg = 0;
-        armServo = hardwareMap.get(Servo.class, "armServo");
-        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
+        //armServo = hardwareMap.get(Servo.class, "armServo");
+        //slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
 
         //gyro = new Gyro(hardwareMap, AngleUnit.DEGREES);
 
-        tlm = hardwareMap.get(DcMotor.class, "frontLeft");
-        trm = hardwareMap.get(DcMotor.class, "frontRight");
-        blm = hardwareMap.get(DcMotor.class, "backLeft");
-        brm = hardwareMap.get(DcMotor.class, "backRight");
+        tlm = hardwareMap.get(DcMotor.class, "topleft");
+        trm = hardwareMap.get(DcMotor.class, "topright");
+        blm = hardwareMap.get(DcMotor.class, "bottomleft");
+        brm = hardwareMap.get(DcMotor.class, "bottomright");
 
         blm.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -56,10 +53,10 @@ AutonomousBlue1 extends LinearOpMode {
         brm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         blm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        armServo.scaleRange(0.0, 0.8);
-        armServo.setDirection(Servo.Direction.REVERSE);
+        //armServo.scaleRange(0.0, 0.8);
+        //armServo.setDirection(Servo.Direction.REVERSE);
 
         int cameraMonitorViewId;
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -83,13 +80,13 @@ AutonomousBlue1 extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            updateServo(true); //close the servo to grip el cone
+            //updateServo(false); //close the servo to grip el cone
             sleep(1000);
 
-            slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 28.5)*720/288);
-            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideMotor.setPower(0.4);
-            sleep(1000);
+//            slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * 28.5)*720/288);
+//            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            slideMotor.setPower(0.4);
+//            sleep(1000);
             moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*15.5));
 
             if (scanner.coneColor() == 1) {
@@ -111,49 +108,21 @@ AutonomousBlue1 extends LinearOpMode {
 
             sleep(2000);
 
-            moveBackward(power, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*14.5));
-            sleep(1000);
 
-            //positioning to middle junc
-            telemetry.addLine("GOING TO JUNCTION NOW");
-            telemetry.update();
+            //updateServo(true);
+            moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*25));
+            moveBackward(power, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*15.5));
 
-            moveLeft(power*1.5, (int)(COUNTS_PER_INCH*24 + trm.getCurrentPosition()));
-            moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*22.5));
-            telemetry.addLine(trm.getCurrentPosition() + "");
-            telemetry.update();
-            sleep(1000);
-            moveRight(power*1.5, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*12.5));
-            moveForward(power, (int)(trm.getCurrentPosition() + COUNTS_PER_INCH*3.5));
-            sleep(1000);
-
-
-            //opens servo, leaves it open for a second, then closes it
-            updateServo(false);
-            sleep(2000);
-            updateServo(true);
-            sleep(1000);
-            moveBackward(power, (int)(trm.getCurrentPosition()-4.5*COUNTS_PER_INCH)); //subject to change
-
-            slideMotor.setPower(-0.5);
-            slideMotor.setTargetPosition(0);
-            while (slideMotor.getCurrentPosition() >= 0) {
-                sleep(20);
-                continue;
-
-            }
-
-            moveLeft(power*1.5, (int)(trm.getCurrentPosition() + 13*COUNTS_PER_INCH));
-            moveForward(power, (int)(trm.getCurrentPosition() + 23.5*COUNTS_PER_INCH));
 
             //`parkingSpot = 2;
             if (parkingSpot == 1) {
-                moveBackward(power, (int)(trm.getCurrentPosition() - COUNTS_PER_INCH*2));
-            }
-            if (parkingSpot == 2) {
-                moveRight(power*1.5, (int)(trm.getCurrentPosition() - 25*COUNTS_PER_INCH));
+                moveLeft(power*1.5, (int)(trm.getCurrentPosition() + 23.5*COUNTS_PER_INCH));
+                telemetry.addLine("it should move left");
+                telemetry.update();
             } else if (parkingSpot == 3) {
-                moveRight(power*1.5, (int)(trm.getCurrentPosition() - 49*COUNTS_PER_INCH));
+                moveRight(power*1.5, (int)(trm.getCurrentPosition() - 23.5*COUNTS_PER_INCH));
+                telemetry.addLine("it should move right");
+                telemetry.update();
             }
 
             sleep(20);
@@ -165,17 +134,17 @@ AutonomousBlue1 extends LinearOpMode {
     }
 
 
-    public void updateServo(boolean state) {
-        if (state) {
-            telemetry.addLine("servoClose");
-            telemetry.update();
-            armServo.setPosition(0.8);
-        } else {
-            telemetry.addLine("servoOpen");
-            telemetry.update();
-            armServo.setPosition(0.1);
-        }
-    }
+//    public void updateServo(boolean state) {
+//        if (state) {
+//            telemetry.addLine("servoClose");
+//            telemetry.update();
+//            //armServo.setPosition(0.8);
+//        } else {
+//            telemetry.addLine("servoOpen");
+//            telemetry.update();
+//            //armServo.setPosition(0.1);
+//        }
+//    }
 
     public void resetMotors() {
         trm.setPower(0);
@@ -230,6 +199,9 @@ AutonomousBlue1 extends LinearOpMode {
             blm.setPower(power);
             tlm.setPower(-power);
             sleep(200);
+
+            telemetry.addLine();
+            telemetry.update();
         }
 
         telemetry.addLine("to be reset. (left)");
@@ -244,8 +216,8 @@ AutonomousBlue1 extends LinearOpMode {
             telemetry.addData("BRM CURR POS (right) ", brm.getCurrentPosition());
             trm.setPower(-power);
             brm.setPower(power);
-            tlm.setPower(power);
             blm.setPower(-power);
+            tlm.setPower(power);
             sleep(200);
         }
 
