@@ -22,7 +22,7 @@ public class TeleOp1 extends LinearOpMode {
     private int servoState = 2;
     private int armState = 5;
     private Servo armServo;
-    private double S = 0.98;
+    private double S = 0.95;
     double ticks = 0;
     private double power = 0.0;
     int st = 0;
@@ -47,7 +47,6 @@ public class TeleOp1 extends LinearOpMode {
         blm = hardwareMap.get(DcMotor.class, "backLeft");
         brm = hardwareMap.get(DcMotor.class, "backRight");
 
-        tlm.setDirection(DcMotorSimple.Direction.REVERSE);
         blm.setDirection(DcMotorSimple.Direction.REVERSE);
 
         tlm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -71,7 +70,7 @@ public class TeleOp1 extends LinearOpMode {
                 if (gamepad1.right_trigger > 0) {
                     power = Math.abs(gamepad1.right_trigger)*3/4;
                 } else if (gamepad1.left_trigger > 0) {
-                    power = -Math.abs(gamepad1.right_trigger)*3/4;
+                    power = -Math.abs(gamepad1.left_trigger)*3/4;
                 }
 
                 trm.setPower(-power);   // abs -> (+) => + power to trm (should be -, refer to cmt above)
@@ -144,11 +143,11 @@ public class TeleOp1 extends LinearOpMode {
                     slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 }
             } else if (gamepad2.b) {//Medium pole 23.5 inch plus other factors
-                slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * (27 / 1.9)));
+                slideMotor.setTargetPosition((int) (COUNTS_PER_INCH * (27 / 2)));
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideMotor.setPower(0.5);
                 lastPressed = "b";
-                if (slideMotor.getCurrentPosition() > (int) (COUNTS_PER_INCH * (27 / 1.9))) {
+                if (slideMotor.getCurrentPosition() > (int) (COUNTS_PER_INCH * (27 / 2))) {
                     slideMotor.setPower(0);
                     slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 }
@@ -163,9 +162,9 @@ public class TeleOp1 extends LinearOpMode {
                 }
             }else if (gamepad2.dpad_down){
                 //either midway up or at its desination
-                slideMotor.setTargetPosition(10);
+                slideMotor.setTargetPosition(2);
                 slideMotor.setPower(-0.5);
-                if (slideMotor.getCurrentPosition() <= 10) {
+                if (slideMotor.getCurrentPosition() <= 2) {
                     slideMotor.setPower(0);
                     slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -182,7 +181,7 @@ public class TeleOp1 extends LinearOpMode {
                 telemetry.addLine("servoClose");
                 telemetry.update();
                 armServo.setPosition(0.8);
-            } else if(gamepad2.right_bumper){
+            } else {
                 telemetry.addLine("servoOpen");
                 telemetry.update();
                 armServo.setPosition(0.0);
