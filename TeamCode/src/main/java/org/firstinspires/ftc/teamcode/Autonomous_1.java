@@ -11,7 +11,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Autonomous_2")
+@Autonomous(name = "Autonomous_Universal - SAFE TO USE")
 public class Autonomous_1 extends LinearOpMode {
     private DcMotor tlm, trm, blm, brm, slideMotor;
     //private Gyro gyro;
@@ -32,7 +32,7 @@ public class Autonomous_1 extends LinearOpMode {
         //hex motor 20:1 gearbox -> linear slide; touch sensor for max height
         double colAvg = 0;
         //armServo = hardwareMap.get(Servo.class, "armServo");
-        //slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
 
         //gyro = new Gyro(hardwareMap, AngleUnit.DEGREES);
 

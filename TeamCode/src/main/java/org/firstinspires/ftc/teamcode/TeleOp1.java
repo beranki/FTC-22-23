@@ -22,7 +22,7 @@ public class TeleOp1 extends LinearOpMode {
     private int servoState = 2;
     private int armState = 5;
     private Servo armServo;
-    private double S = 0.95;
+    private double S = 0.93;
     double ticks = 0;
     private double power = 0.0;
     int st = 0;
